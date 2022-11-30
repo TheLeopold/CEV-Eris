@@ -1,6 +1,6 @@
 //NOTE: THESE ARE ALL PARALLEL SO THEY WILL NOT RUN SIMULTANEOUSLY
 /datum/storyevent/bluespace_storm
-	id = "bluespace storm"
+	id = "bluespace_storm"
 	name = "Bluespace storm"
 	weight = 0.8
 	event_type = /datum/event/bluespace_storm
@@ -28,7 +28,7 @@
 		bluespace_distorsion(A.random_space())
 
 /datum/storyevent/ion_blizzard
-	id = "ion blizzard"
+	id = "ion_blizzard"
 	name = "Ion blizzard"
 	weight = 0.9
 	event_type = /datum/event/ion_blizzard
@@ -59,7 +59,7 @@
 			L.flick_light(rand(2,5))
 
 /datum/storyevent/photon_vortex
-	id = "photon vortex"
+	id = "photon_vortex"
 	name = "Photon vortex"
 	weight = 0.9
 	event_type = /datum/event/photon_vortex
@@ -73,16 +73,19 @@
 	endWhen = 350
 
 /datum/event/photon_vortex/setup()
-	endWhen = rand(300, 600)
+	endWhen = rand(300, 800)
 
 /datum/event/photon_vortex/start()
 	for(var/obj/item/device/lighting/L in world)
-		L.brightness_on = L.brightness_on / 5
+		L.brightness_on = L.brightness_on / 4
 		L.update_icon()
 	for(var/area/area as anything in ship_areas)
-		for(var/obj/machinery/light/l in ship_areas)
-			l.brightness_range = l.brightness_range / 6
-			l.brightness_power = l.brightness_power / 5
+		for(var/obj/structure/cyberplant/c in area)
+			c.brightness_on = c.brightness_on / 2
+			c.doInterference()
+		for(var/obj/machinery/light/l in area)
+			l.brightness_range = l.brightness_range / 3
+			l.brightness_power = l.brightness_power / 2
 			l.update()
 
 /datum/event/photon_vortex/announce()
@@ -94,15 +97,17 @@
 	for(var/obj/item/device/lighting/L in world)
 		L.brightness_on = initial(L.brightness_on)
 		L.update_icon()
-
 	for(var/area/area as anything in ship_areas)
-		for(var/obj/machinery/light/l in ship_areas)
+		for(var/obj/structure/cyberplant/c in area)
+			c.brightness_on = initial(c.brightness_on)
+			c.doInterference()
+		for(var/obj/machinery/light/l in area)
 			l.brightness_range = initial(l.brightness_range)
 			l.brightness_power = initial(l.brightness_power)
 			l.update()
 
 /datum/storyevent/harmonic_feedback
-	id = "harmonic feedback surge"
+	id = "harmonic_feedback_surge"
 	name = "Harmonic feedback surge anomaly"
 	weight = 0.5
 	event_type = /datum/event/harmonic_feedback
@@ -129,7 +134,7 @@
 		G.take_damage(10, SHIELD_DAMTYPE_EM)
 
 /datum/storyevent/micro_debris
-	id = "micro debris"
+	id = "micro_debris"
 	name = "micro debris field"
 	weight = 0.9
 	parallel = FALSE
@@ -243,7 +248,7 @@
 	GLOB.GLOBAL_INSIGHT_MOD = 1
 
 /datum/storyevent/interphase
-	id = "bluespace interphase"
+	id = "bluespace_interphase"
 	name = "Bluespace Interphase"
 	weight = 0.5
 	parallel = FALSE
@@ -263,23 +268,28 @@
 	command_announcement.Announce("The fabric of bluespace has begun to break up, allowing an overlap of parallel universes on different dimensional planes. There is no additional data.", "Bluespace Interphase")
 
 /datum/event/interphase/tick()
-	if(prob(15))
+	if(prob(3))
 		var/list/servers = list()
 		for(var/obj/machinery/telecomms/server/S in telecomms_list)
-			if(S.network == "eris") //yep, only for eris so that non-eris servers don't get involved(duh!)
-				servers += S
-		var/obj/machinery/telecomms/server/chosen_server = pick(servers)
-		var/datum/comm_log_entry/C = pick(chosen_server.log_entries)
-		if(C)
-			global_announcer.autosay(C.parameters["name"], C.parameters["message"])
-	if(prob(5)) //spooky bluspess ghost
-		var/target = pick(GLOB.human_mob_list)
-		var/mob/living/carbon/human/ghost = new target(spaceDebrisStartLoc(pick(cardinal), pick(GLOB.maps_data.station_levels)))
-		ghost.incorporeal_move = TRUE
-		ghost.ReplaceMovementHandler(/datum/movement_handler/mob/incorporeal)
-		walk_towards(ghost, target, 1)
-		sleep(30)
-		qdel(ghost)
+			if(S.network == "eris" && S.log_entries.len != 0) //yep, only for eris so that non-eris servers don't get involved(duh!)
+				servers += S								//also checks if there are any log entries (not an empty list)
+		if(servers.len != 0)
+			var/obj/machinery/telecomms/server/chosen_server = pick(servers)
+			var/datum/comm_log_entry/C = pick(chosen_server.log_entries)
+			global_announcer.autosay(C.parameters["message"], C.parameters["name"])
+	if(prob(10)) //spooky bluspess ghost
+		var/area/location = random_ship_area()
+		var/mob/living/carbon/human/to_copy = pick(GLOB.human_mob_list)
+		var/mob/ghost = new(location.random_space())
+		ghost.icon = to_copy.icon
+		ghost.icon_state = to_copy.icon_state
+		ghost.dir = to_copy.dir
+		ghost.appearance = to_copy.appearance
+		ghost.mouse_opacity = 0
+		ghost.density = 0
+		sleep(20)
+		if(ghost)//no idea how it could be gone in 20 seconds but gamers will find a way
+			qdel(ghost)
 
 /datum/event/interphase/end()
 	command_announcement.Announce("The bluespace interphase stabilized itself.", "Bluespace Interphase")
