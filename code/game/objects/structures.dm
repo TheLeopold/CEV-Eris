@@ -153,14 +153,14 @@
 
 /obj/structure/proc/structure_shaken()
 	for(var/mob/living/M in climbers)
-		M.Weaken(1)
+		M.Weaken(2 SECONDS)
 		to_chat(M, SPAN_DANGER("You topple as you are shaken off \the [src]!"))
 		climbers.Cut(1,2)
 
 	for(var/mob/living/M in get_turf(src))
 		if(M.lying) return //No spamming this on people.
 
-		M.Weaken(3)
+		M.Weaken(6 SECONDS)
 		to_chat(M, SPAN_DANGER("You topple as \the [src] moves under you!"))
 
 		if(prob(25))
@@ -203,7 +203,7 @@
 	if (user.restrained() || user.buckled)
 		to_chat(user, SPAN_NOTICE("You need your hands and legs free for this."))
 		return 0
-	if (user.stat || user.paralysis || user.sleeping || user.lying || user.weakened)
+	if (user.stat || hasStatusEffect(user, SE_PARALYZED) || user.sleeping || user.lying || hasStatusEffect(user, SE_WEAKENED))
 		return 0
 	if (issilicon(user))
 		to_chat(user, SPAN_NOTICE("You need hands for this."))

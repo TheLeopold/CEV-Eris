@@ -1,60 +1,13 @@
 // These should all be procs, you can add them to humans/subspecies by
 // species.dm's inherent_verbs ~ Z
 
-/mob/living/carbon/human/proc/tackle()
-	set category = "Abilities"
-	set name = "Tackle"
-	set desc = "Tackle someone down."
-
-	if(last_special > world.time)
-		return
-
-	if(stat || paralysis || stunned || weakened || lying || restrained() || buckled)
-		to_chat(src, "You cannot tackle someone in your current state.")
-		return
-
-	var/list/choices = list()
-	for(var/mob/living/M in view(1,src))
-		if(!issilicon(M) && Adjacent(M))
-			choices += M
-	choices -= src
-
-	var/mob/living/T = input(src,"Who do you wish to tackle?") as null|anything in choices
-
-	if(!T || !src || src.stat) return
-
-	if(!Adjacent(T)) return
-
-	if(last_special > world.time)
-		return
-
-	if(stat || paralysis || stunned || weakened || lying || restrained() || buckled)
-		to_chat(src, "You cannot tackle in your current state.")
-		return
-
-	last_special = world.time + 50
-
-	var/failed
-	if(prob(75))
-		T.Weaken(rand(0.5,3))
-	else
-		src.Weaken(rand(2,4))
-		failed = 1
-
-	mob_playsound(loc, 'sound/weapons/pierce.ogg', 25, 1, -1)
-	if(failed)
-		src.Weaken(rand(2,4))
-
-	for(var/mob/O in viewers(src, null))
-		if ((O.client && !( O.blinded )))
-			O.show_message(text("\red <B>[] [failed ? "tried to tackle" : "has tackled"] down []!</B>", src, T), 1)
 
 /mob/living/carbon/human/proc/leap(mob/living/carbon/human/T)
 	if(last_special > world.time)
 		return
-	if(!T || !src || src.stat) 
+	if(!T || !src || src.stat)
 		return
-	if(stat || paralysis || stunned || weakened || lying || restrained() || buckled)
+	if(stat || hasStatusEffect(T, SE_PARALYZED) || hasStatusEffect(T, SE_STUNNED) || hasStatusEffect(T, SE_WEAKENED) || lying || restrained() || buckled)
 		to_chat(src, "You cannot lunge in your current state.")
 		return
 
@@ -78,42 +31,6 @@
 	G.synch()
 	G.Process()
 
-/mob/living/carbon/human/proc/gut()
-	set category = "Abilities"
-	set name = "Gut"
-	set desc = "While grabbing someone aggressively, rip their guts out or tear them apart."
-
-	if(last_special > world.time)
-		return
-
-	if(stat || paralysis || stunned || weakened || lying)
-		to_chat(src, "\red You cannot do that in your current state.")
-		return
-
-	var/obj/item/grab/G = locate() in src
-	if(!G || !istype(G))
-		to_chat(src, "\red You are not grabbing anyone.")
-		return
-
-	if(G.state < GRAB_AGGRESSIVE)
-		to_chat(src, "\red You must have an aggressive grab to gut your prey!")
-		return
-
-	last_special = world.time + 50
-
-	visible_message(SPAN_WARNING("<b>\The [src]</b> rips viciously at \the [G.affecting]'s body with its claws!"))
-
-	if(ishuman(G.affecting))
-		var/mob/living/carbon/human/H = G.affecting
-		H.apply_damage(50,BRUTE)
-		if(H.stat == 2)
-			H.gib()
-	else
-		var/mob/living/M = G.affecting
-		if(!istype(M)) return //wut
-		M.apply_damage(50,BRUTE)
-		if(M.stat == 2)
-			M.gib()
 
 /mob/living/carbon/human/proc/commune()
 	set category = "Abilities"

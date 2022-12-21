@@ -32,6 +32,7 @@
 	var/wander = 1 //perform automated random movement when idle
 	var/stop_automated_movement = 0 //use this to temporarely stop random movement
 	var/stop_automated_movement_when_pulled = 0
+	var/debugging_this = FALSE
 
 	var/contaminant_immunity = FALSE //if TRUE, mob is immune to harmful contaminants in air (plasma), skin contact, does not relate to breathing
 	var/cold_protection = 0 //0 to 1 value, which corresponds to the percentage of protection, affects only bodytemperature
@@ -228,23 +229,25 @@
 
 // branchless isincapacited check made for roaches.
 /mob/living/carbon/superior_animal/proc/cheap_incapacitation_check() // This works based off constants ,override it if you want it to be dynamic . Based off isincapacited
-	return stunned > 0 || weakened > 0 || resting || pinned.len > 0 || stat || paralysis || sleeping || (status_flags & FAKEDEATH) || buckled() > 0
+	return stunned > 0 || hasStatusEffect(src, SE_WEAKENED) || resting || pinned.len > 0 || stat || paralysis || sleeping || (status_flags & FAKEDEATH) || buckled() > 0
 
-/mob/living/carbon/superior_animal/proc/cheap_update_lying_buckled_and_verb_status_()
-
+/mob/living/carbon/superior_animal/update_lying_buckled_and_verb_status()
 	if(!cheap_incapacitation_check())
 		lying = FALSE
 		canmove = TRUE
 	else
+		lying = TRUE
 		canmove = FALSE //TODO
 		if(buckled)
 			anchored = buckled.buckle_movable
+			/// this might as well override the one earlier
 			lying = buckled.buckle_lying
 	if(lying)
 		set_density(FALSE)
 	else
 		canmove = TRUE
 		set_density(initial(density))
+
 
 /mob/living/carbon/superior_animal/proc/handle_ai()
 
@@ -298,11 +301,7 @@
 
 	return TRUE
 
-// Same as overridden proc but -3 instead of -1 since its 3 times less frequently envoked, if checks removed
-/mob/living/carbon/superior_animal/handle_status_effects()
-	paralysis = max(paralysis-3,0)
-	stunned = max(stunned-3,0)
-	weakened = max(weakened-3,0)
+
 
 /mob/living/carbon/superior_animal/proc/handle_cheap_regular_status_updates()
 	health = maxHealth - oxyloss - toxloss - fireloss - bruteloss - cloneloss - halloss
@@ -350,11 +349,7 @@
 	handle_cheap_chemicals_in_body()
 	resting = (resting && client) ? TRUE : FALSE
 	if(!(ticks_processed%3))
-		// handle_status_effects() this is handled here directly to save a bit on procedure calls
-		paralysis = max(paralysis-3,0)
-		stunned = max(stunned-3,0)
-		weakened = max(weakened-3,0)
-		cheap_update_lying_buckled_and_verb_status_()
+		update_lying_buckled_and_verb_status()
 		var/datum/gas_mixture/breath = environment.remove_volume(BREATH_VOLUME)
 		handle_cheap_breath(breath)
 		handle_cheap_environment(environment)
