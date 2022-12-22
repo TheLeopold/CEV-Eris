@@ -48,11 +48,7 @@
 	var/min_air_pressure = 50 //below this, brute damage is dealt
 	var/max_air_pressure = 300 //above this, brute damage is dealt
 	var/min_bodytemperature = 200 //below this, burn damage is dealt
-	var/max_bodytemperature = 350 //above this, burn damage is dealt
-	bodytemperature = 300	//cold blood
-	var/ignite_bodytemperature = 380 //above this, gain firestacks
-	var/temp_damage_mult = 1 //so bigger roaches can take more temperature damage
-	var/insulation_divisor = 1 //applied to all sources of heat damage (not the environment)
+	var/max_bodytemperature = 360 //above this, burn damage is dealt
 
 	var/deathmessage = "dies."
 	var/list/attacktext = list("bitten", "chewed", "nibbled on")
@@ -196,24 +192,11 @@
 
 /mob/living/carbon/superior_animal/proc/handle_cheap_environment(datum/gas_mixture/environment as anything)
 	var/pressure = environment.return_pressure()
-	var/enviro_damage = (bodytemperature < min_bodytemperature ? TRUE : bodytemperature > max_bodytemperature) || (pressure < min_air_pressure) || (pressure > max_air_pressure)
+	var/enviro_damage = (bodytemperature < min_bodytemperature) || (pressure < min_air_pressure) || (pressure > max_air_pressure)
 	if(enviro_damage) // its like this to avoid extra processing further below without using goto
-		bodytemperature += CLAMP((bodytemperature - environment.temperature) / BODYTEMP_ROACH_DIVISOR * (environment.total_moles / MOLES_CELLSTANDARD) * -(bodytemperature < environment.temperature ? 1 - heat_protection : 1 - cold_protection), BODYTEMP_COOLING_MAX, BODYTEMP_HEATING_MAX)
-		if(bodytemperature < min_bodytemperature)
-			var/burn_dam = 10 * temp_damage_mult
-			if(on_fire)
-				fire_stacks = 0
-				ExtinguishMob()
-				burn_dam += TEMP_SHOCK_DAMAGE // Temperature shock
-			adjustFireLoss(burn_dam)
-		else if (bodytemperature > max_bodytemperature)
-			if(bodytemperature > ignite_bodytemperature)
-				fire_stacks += 3 // Handle_fire happens three times as much as handle_cheap_environment
-				IgniteMob()
-			fire_stacks += 3
-			adjustFireLoss(3 * temp_damage_mult)
+		bodytemperature += (bodytemperature - environment.temperature) * (environment.total_moles / MOLES_CELLSTANDARD) * (bodytemperature < min_bodytemperature ? 1 - heat_protection : -1 + cold_protection)
+		adjustFireLoss(bodytemperature < min_bodytemperature ? 0 : 15)
 		adjustBruteLoss((pressure < min_air_pressure  || pressure > max_air_pressure) ? 0 : 6)
-		updatehealth()
 		bad_environment = TRUE
 		return FALSE
 	bad_environment = FALSE
@@ -229,7 +212,7 @@
 
 // branchless isincapacited check made for roaches.
 /mob/living/carbon/superior_animal/proc/cheap_incapacitation_check() // This works based off constants ,override it if you want it to be dynamic . Based off isincapacited
-	return stunned > 0 || hasStatusEffect(src, SE_WEAKENED) || resting || pinned.len > 0 || stat || paralysis || sleeping || (status_flags & FAKEDEATH) || buckled() > 0
+	return hasStatusEffect(src, SE_STUNNED) || hasStatusEffect(src, SE_WEAKENED) || resting || pinned.len > 0 || stat || hasStatusEffect(src, SE_PARALYZED) || sleeping || (status_flags & FAKEDEATH) || buckled() > 0
 
 /mob/living/carbon/superior_animal/update_lying_buckled_and_verb_status()
 	if(!cheap_incapacitation_check())

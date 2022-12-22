@@ -1,13 +1,16 @@
 SUBSYSTEM_DEF(statusEffects)
 	name = "Status effects"
 	flags = SS_TICKER
-	runlevels = RUNLEVEL_GAME|RUNLEVEL_POSTGAME
-	wait = 5
+	priority = FIRE_PRIORITY_STATUSEFFECTS
+	init_order = INIT_ORDER_STATUSEFFECTS
+	runlevels = RUNLEVEL_GAME
+	wait = 20
 	var/list/mob/affectedMobs = list()
 
 /datum/controller/subsystem/statusEffects/Initialize()
 	for(var/datum/statusEffect/effect as anything in subtypesof(/datum/statusEffect))
 		GLOB.globalEffects[initial(effect.identifier)] = effect
+	return ..()
 
 /datum/controller/subsystem/statusEffects/fire(resumed=FALSE)
 	for(var/mobReference as anything in affectedMobs)
@@ -89,8 +92,8 @@ proc/getStatusEffectDuration(mob/target, effectType)
 			if(effect.flags & SE_FLAG_UNIQUE)
 				if(. < effect.duration + effect.startingTime - world.time)
 					. = effect.duration + effect.startingTime - world.time
-				else
-					return effect.duration + effect.startingTime - world.time
+			else
+				return effect.duration + effect.startingTime - world.time
 	return .
 
 // expect a list if its a unique effect
@@ -152,12 +155,35 @@ proc/getStatusEffect(mob/target, effectType)
 /datum/statusEffect/stunned
 	identifier = SE_STUNNED
 
+/datum/statusEffect/stunned/onStart()
+	var/mob/owner = locate(mobReference)
+	if(owner)
+		owner.update_lying_buckled_and_verb_status()
+		owner.updateicon()
+
 /datum/statusEffect/stunned/onFinish()
 	var/mob/owner = locate(mobReference)
 	if(owner)
-		owner.update_icon()
+		owner.update_lying_buckled_and_verb_status()	//updates lying, canmove and icons
+		owner.updateicon()
+
+
 /datum/statusEffect/paralyzed
 	identifier = SE_PARALYZED
+
+/datum/statusEffect/paralyzed/onStart()
+	var/mob/owner = locate(mobReference)
+	if(owner)
+		owner.update_lying_buckled_and_verb_status()
+		owner.updateicon()
+
+/datum/statusEffect/paralyzed/onFinish()
+	var/mob/owner = locate(mobReference)
+	if(owner)
+		owner.update_lying_buckled_and_verb_status()	//updates lying, canmove and icons
+		owner.updateicon()
+
+
 
 
 
