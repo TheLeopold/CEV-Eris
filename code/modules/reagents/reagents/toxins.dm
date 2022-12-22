@@ -22,7 +22,7 @@
 		if(sanityloss && ishuman(M))
 			var/mob/living/carbon/human/H = M
 			H.sanity.onToxin(src, effect_multiplier)
-	M.add_chemical_effect(CE_TOXIN, 1)
+	M.add_chemical_effect(CE_TOXIN, 1 + effect_multiplier * strength)
 
 /datum/reagent/toxin/overdose(mob/living/carbon/M, alien)
 	if(strength)
@@ -76,11 +76,7 @@
 	withdrawal_rate = REM
 
 /datum/reagent/toxin/carpotoxin/affect_blood(mob/living/carbon/M, alien, effect_multiplier)
-	if(ishuman(M))
-		var/mob/living/carbon/human/H = M
-		var/obj/item/organ/internal/liver/L = H.random_organ_by_process(OP_LIVER)
-		if(istype(L))
-			L.take_damage(strength * effect_multiplier, 0)
+	..()
 	M.stats.addTempStat(STAT_VIG, STAT_LEVEL_ADEPT, STIM_TIME, "carpotoxin")
 
 /datum/reagent/toxin/carpotoxin/withdrawal_act(mob/living/carbon/M)
@@ -269,7 +265,6 @@
 	color = "#8E18A9"
 	power = 10
 	meltdose = 4
-
 
 /datum/reagent/toxin/lexorin
 	name = "Lexorin"
@@ -633,7 +628,7 @@
 		var/mob/living/carbon/human/H = M
 		var/obj/item/organ/internal/liver/L = H.random_organ_by_process(OP_LIVER)
 		if(istype(L))
-			L.take_damage(strength, 0)
+			L.take_damage(dose/2, FALSE, TOX)
 	if(issmall(M))
 		M.adjustToxLoss(strength * 2)
 	else
@@ -654,13 +649,9 @@
 	withdrawal_threshold = 10
 
 /datum/reagent/toxin/seligitillin/affect_blood(mob/living/carbon/M, alien, effect_multiplier)
-	M.add_chemical_effect(CE_BLOODCLOT, 0.2)
-	M.heal_organ_damage(0.2 * effect_multiplier, 0, 3)
-	var/mob/living/carbon/human/H = M
-	for(var/obj/item/organ/external/E in H.organs)
-		for(var/datum/wound/W in E.wounds)
-			if(W.internal)
-				W.heal_damage(1 * effect_multiplier)
+	..()
+	M.add_chemical_effect(CE_BLOODCLOT, 0.25)
+	M.heal_organ_damage(0.25 * effect_multiplier, 0, 3)
 
 /datum/reagent/toxin/seligitillin/withdrawal_act(mob/living/carbon/M)
 	M.stats.addTempStat(STAT_TGH, -STAT_LEVEL_ADEPT, STIM_TIME, "seligitillin_w")
@@ -671,10 +662,10 @@
 	var/mob/living/carbon/human/H = M
 	var/obj/item/organ/internal/heart/S = H.random_organ_by_process(OP_HEART)
 	if(istype(S))
-		S.take_damage(2, 0)
+		S.take_damage(dose/2, FALSE, TOX)
 	var/obj/item/organ/internal/liver/L = H.random_organ_by_process(OP_LIVER)
 	if(istype(L))
-		L.take_damage(3, 0)
+		L.take_damage(dose/2, FALSE, TOX)
 
 /datum/reagent/toxin/starkellin
 	name = "Starkellin"
@@ -742,6 +733,7 @@
 	withdrawal_threshold = 5
 
 /datum/reagent/toxin/fuhrerole/affect_blood(mob/living/carbon/M, alien, effect_multiplier)
+	..()
 	M.stats.addTempStat(STAT_VIG, STAT_LEVEL_ADEPT * effect_multiplier, STIM_TIME, "fuhrerole_w")
 	M.faction = "roach"
 

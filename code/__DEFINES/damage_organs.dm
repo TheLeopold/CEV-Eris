@@ -140,15 +140,29 @@
 // Damage above this value must be repaired with surgery.
 #define ROBOLIMB_SELF_REPAIR_CAP 30
 
-//Germs and infections.
-#define GERM_LEVEL_AMBIENT  110 // Maximum germ level you can reach by standing still.
-#define GERM_LEVEL_MOVE_CAP 200 // Maximum germ level you can reach by running around.
-
-#define INFECTION_LEVEL_ONE   100
-#define INFECTION_LEVEL_TWO   500
-#define INFECTION_LEVEL_THREE 1000
-
 #define ORGAN_RECOVERY_THRESHOLD (5 MINUTES)
+
+// INTERNAL ORGANS
+#define IORGAN_STANDARD_HEALTH 12
+#define IORGAN_SMALL_HEALTH 8
+#define IORGAN_SKELETAL_HEALTH 14
+#define IORGAN_MAX_HEALTH 14
+
+// INTERNAL WOUNDS
+#define TREATMENT_ITEM 1
+#define TREATMENT_TOOL 2
+#define TREATMENT_CHEM 3
+
+#define IWOUND_INSIGNIFICANT_DAMAGE 0.05
+#define IWOUND_LIGHT_DAMAGE 0.1
+#define IWOUND_MEDIUM_DAMAGE 0.25
+#define IWOUND_HEAVY_DAMAGE 0.5
+
+#define IWOUND_1_MINUTE	30
+#define IWOUND_2_MINUTES 60
+#define IWOUND_3_MINUTES 90
+#define IWOUND_4_MINUTES 120
+#define IWOUND_5_MINUTES 150
 
 // Organ generation
 #define ORGAN_HAS_BONES			(1<<0)
