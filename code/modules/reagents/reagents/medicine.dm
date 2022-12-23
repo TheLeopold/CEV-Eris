@@ -526,7 +526,10 @@
 	scannable = 1
 
 /datum/reagent/medicine/leporazine/affect_blood(mob/living/carbon/M, alien, effect_multiplier)
-	M.adjustHeat(CLAMP((310 - M.bodytemperature) / TEMPERATURE_DAMAGE_DIVISOR * 40 * effect_multiplier, BODYTEMP_COOLING_MAX, BODYTEMP_HEATING_MAX))
+	if(M.bodytemperature > 310)
+		M.bodytemperature = max(310, M.bodytemperature - (40 * TEMPERATURE_DAMAGE_COEFFICIENT) * effect_multiplier)
+	else if(M.bodytemperature < 311)
+		M.bodytemperature = min(310, M.bodytemperature + (40 * TEMPERATURE_DAMAGE_COEFFICIENT) * effect_multiplier)
 
 /* Antidepressants */
 

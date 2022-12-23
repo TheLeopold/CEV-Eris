@@ -110,15 +110,6 @@
 		list(QUALITY_ADHESIVE, 15, 70)
 	)
 
-/datum/craft_recipe/tool/ignited_chemthrower
-	name = "Ignited chemthrower"
-	result = /obj/item/gun/reagent/flame
-	steps = list(
-		list(/obj/item/gun/reagent, 1),
-		list(/obj/item/device/assembly/igniter, 1),
-		list(QUALITY_ADHESIVE, 15, 100)
-	)
-
 /*************************
 	TOOL MODS
 *************************/

@@ -1,3 +1,4 @@
+/*
 /mob/living/carbon/superior_animal/roach/benzin
 	name = "Benzin Roach"
 	desc = "A monstrous, dog-sized cockroach. This one smells like welding fuel."
@@ -10,10 +11,7 @@
 	meat_amount = 3
 	rarity_value = 15
 
-	temp_damage_mult = 3
-	insulation_divisor = 0.8
-	max_bodytemperature = 340
-	ignite_bodytemperature = 350
+
 
 /mob/living/carbon/superior_animal/roach/benzin/Initialize(mapload)
 	. = ..()
@@ -53,3 +51,4 @@
 /mob/living/carbon/superior_animal/roach/benzin/death()
 	. = ..()
 	new /obj/effect/decal/cleanable/liquid_fuel(loc, reagents.get_reagent_amount("fuel"), 1)
+*/

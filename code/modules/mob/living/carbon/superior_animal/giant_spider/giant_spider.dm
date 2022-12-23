@@ -33,7 +33,6 @@
 
 	min_breath_required_type = 3
 	min_air_pressure = 15 //below this, brute damage is dealt
-	temp_damage_mult = 4 // spiders are fairly large
 
 	var/poison_per_bite = 5
 	var/poison_type = "pararein"

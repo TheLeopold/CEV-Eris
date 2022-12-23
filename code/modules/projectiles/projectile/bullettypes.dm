@@ -275,9 +275,7 @@ There are important things regarding this file:
 	knockback = 0
 
 /obj/item/projectile/bullet/shotgun/incendiary
-	name = "incendiary slug"
-	damage_types = list(BRUTE = 15, BURN = 20, HEAT = 40)
-	wounding_mult = WOUNDING_WIDE
+	damage_types = list(BRUTE = 38)
 	knockback = 0
 
 	var/fire_stacks = 4

@@ -8,8 +8,6 @@
 	maxHealth = 40
 	health = 40
 
-	insulation_divisor = 0.8
-
 	contaminant_immunity = TRUE
 
 	melee_damage_lower = 5
@@ -33,8 +31,6 @@
 		bio = 50,
 		rad = 100
 	)
-
-	temp_damage_mult = 2
 
 /mob/living/carbon/superior_animal/roach/toxic/UnarmedAttack(atom/A, var/proximity)
 	. = ..()
